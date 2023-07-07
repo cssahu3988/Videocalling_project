@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Videocalling_project</string>
+    <string name="call">Call</string>
+    <string name="enter_callee_ip_address">Enter callee IP Address</string>
+    <string name="cancel">cancel</string>
+    <string name="receive">Receive</string>
+</resources>
