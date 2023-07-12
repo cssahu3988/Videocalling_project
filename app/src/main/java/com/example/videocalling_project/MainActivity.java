@@ -18,7 +18,6 @@ import android.text.format.Formatter;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,10 +35,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.videocalling_project.databinding.ActivityMainBinding;
-import com.example.videocalling_project.models.InitiateCallModel;
-import com.example.videocalling_project.models.InitiateCallResponse;
 import com.example.videocalling_project.service.ReceiveAudio;
-import com.example.videocalling_project.utils.RetroitClient;
 import com.example.videocalling_project.viewModels.MainActivityViewModel;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -53,16 +49,11 @@ import java.net.UnknownHostException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     MainActivityViewModel model;
     public byte[] buffer;
-    public static DatagramSocket audioSocket;
-    public static DatagramSocket videoSocket;
+    public static DatagramSocket socket;
     private int port = 50005;
 
     AudioRecord recorder;
@@ -158,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean){
-                    startAudioStreaming();
+                    startStreaming();
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -193,36 +184,12 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 if (aBoolean){
-                    try {
-                        socket();
-                    } catch (SocketException e) {
-                        throw new RuntimeException(e);
-                    }
                     receiveAudio = new ReceiveAudio(MainActivity.this,model.image);
                 }
                 else{
                     if (receiveAudio !=null){
                          receiveAudio.stop();
                     }
-                }
-            }
-        });
-        model.audio_port.observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                if (!s.isEmpty()){
-                    InitiateCallModel m = new InitiateCallModel(model.user_name.getValue(), model.ipAddress.getValue(), s, model.calleeIpAddress.getValue());
-                    RetroitClient.getInstance().getRetrofitAPI().initiateCall(m).enqueue(new Callback<InitiateCallResponse>() {
-                        @Override
-                        public void onResponse(@NonNull Call<InitiateCallResponse> call, @NonNull Response<InitiateCallResponse> response) {
-                            Toast.makeText(MainActivity.this, ""+response.body(), Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onFailure(Call<InitiateCallResponse> call, Throwable t) {
-
-                        }
-                    });
                 }
             }
         });
@@ -237,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
         model.ipAddress.postValue(ip);
     }
 
-    public void startAudioStreaming() {
+    public void startStreaming() {
         Thread streamThread = new Thread(new Runnable() {
             @SuppressLint("MissingPermission")
             @Override
@@ -369,11 +336,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private DatagramSocket socket() throws SocketException {
-        if (audioSocket ==null){
-            audioSocket = new DatagramSocket();
-            model.audio_port.postValue(String.valueOf(audioSocket.getPort()));
+        if (socket==null){
+            socket = new DatagramSocket();
         }
-        return audioSocket;
+        return socket;
     }
 
     private InetAddress inetAddress() throws UnknownHostException {

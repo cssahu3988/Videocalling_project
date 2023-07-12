@@ -31,7 +31,7 @@ public class MainActivityRepo {
 
     private void init() {
         retrofitAPI = RetroitClient.getInstance().getRetrofitAPI();
-        initiateCall(new InitiateCallModel("sonu","192.168.0.100","192.168.0.101","5000"));
+        initiateCall(new InitiateCallModel("sonu","192.168.0.100","192.168.0.101","5000","5000"));
     }
 
     public void initiateCall(InitiateCallModel model){
