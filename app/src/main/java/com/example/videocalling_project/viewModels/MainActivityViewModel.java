@@ -22,6 +22,8 @@ public class MainActivityViewModel extends ViewModel {
     public MutableLiveData<Boolean> receive = new MutableLiveData<>(false);
     public MutableLiveData<Boolean> previewView = new MutableLiveData<>(true);
     public MutableLiveData<Bitmap> image = new MutableLiveData<>(null);
+    public MutableLiveData<String> user_name = new MutableLiveData<>(null);
+    public MutableLiveData<String> audio_port = new MutableLiveData<>(null);
     public LiveData<InitiateCallResponse> initiateCallResponseLiveData = mainActivityRepo().getInitiateCallResponseMutableLiveData();
 
 
